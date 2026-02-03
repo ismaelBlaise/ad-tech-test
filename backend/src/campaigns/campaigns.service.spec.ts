@@ -27,7 +27,7 @@ describe('CampaignsService', () => {
     status: 'ACTIVE',
     startDate: new Date('2024-01-01T00:00:00.000Z'),
     endDate: new Date('2024-12-31T23:59:59.999Z'),
-    impressions: 10000000, // 10 millions
+    impressions: 10000000,
     clicks: 100,
     createdAt: new Date('2024-01-01T10:00:00.000Z'),
     updatedAt: new Date('2024-01-01T10:00:00.000Z'),
@@ -41,7 +41,7 @@ describe('CampaignsService', () => {
     status: 'PAUSED',
     startDate: new Date('2024-02-01T00:00:00.000Z'),
     endDate: new Date('2024-03-31T23:59:59.999Z'),
-    impressions: 5000000, // 5 millions
+    impressions: 5000000,
     clicks: 50,
     createdAt: new Date('2024-02-01T10:00:00.000Z'),
     updatedAt: new Date('2024-02-01T10:00:00.000Z'),
