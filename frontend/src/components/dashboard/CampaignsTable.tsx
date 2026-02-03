@@ -209,7 +209,10 @@ export default function CampaignsTable() {
               </span>
               <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover/cta:translate-x-1 transition-transform" />
             </button>
-            <button className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[var(--color-primary-500)] to-[var(--color-primary-600)] text-white font-medium rounded-[var(--radius-md)] hover:shadow-[var(--shadow-md)] transition-all shadow-sm group order-1 sm:order-2 sm:ml-auto">
+            <button
+              onClick={() => navigate("/create")}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[var(--color-primary-500)] to-[var(--color-primary-600)] text-white font-medium rounded-[var(--radius-md)] hover:shadow-[var(--shadow-md)] transition-all shadow-sm group order-1 sm:order-2 sm:ml-auto"
+            >
               <Plus className="w-4 h-4" />
               <span className="text-sm sm:text-base">Nouvelle campagne</span>
             </button>
@@ -479,7 +482,10 @@ export default function CampaignsTable() {
             <p className="text-[var(--color-gray-500)] text-sm mb-4">
               Créez votre première campagne pour commencer
             </p>
-            <button className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[var(--color-primary-500)] to-[var(--color-primary-600)] text-white font-medium rounded-[var(--radius-md)] hover:shadow-[var(--shadow-md)] transition-all shadow-sm mx-auto">
+            <button
+              onClick={() => navigate("/create")}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[var(--color-primary-500)] to-[var(--color-primary-600)] text-white font-medium rounded-[var(--radius-md)] hover:shadow-[var(--shadow-md)] transition-all shadow-sm mx-auto"
+            >
               <Plus className="w-4 h-4" />
               <span>Créer une campagne</span>
             </button>

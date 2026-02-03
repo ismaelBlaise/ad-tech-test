@@ -7,6 +7,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/react-query";
 import CampaignsPage from "./pages/CampaignPage";
 import CampaignDetail from "./pages/CampaignDetail";
+import CreateCampaign from "./pages/CreateCampaign";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
               <Route index element={<DashboardPage />} />
               <Route path="campaigns" element={<CampaignsPage />} />
               <Route path="detail" element={<CampaignDetail />}></Route>
+              <Route path="create" element={<CreateCampaign />}></Route>
             </Route>
           </Routes>
         </BrowserRouter>
