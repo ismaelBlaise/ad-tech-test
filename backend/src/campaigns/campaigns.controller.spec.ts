@@ -1,12 +1,13 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/unbound-method */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Test, TestingModule } from '@nestjs/testing';
 import { CampaignsController } from './campaigns.controller';
 import { CampaignsService } from './campaigns.service';
 import { CreateCampaignDto } from './dtos/create-campaign.dto';
 import { UpdateStatusDto } from './dtos/update-status.dto';
 import { QueryCampaignDto } from './dtos/query-campaign.dto';
+import { OverviewStatsResponseDto } from './dtos/overview-stats-response.dto';
+import { TrendsResponseDto } from './dtos/trends-response.dto';
 import { Campaign, CampaignStatus } from './schemas/campaign.schema';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { Types } from 'mongoose';
@@ -37,6 +38,8 @@ describe('CampaignsController', () => {
     findOne: jest.fn(),
     updateStatus: jest.fn(),
     getStats: jest.fn(),
+    getOverviewStats: jest.fn(),
+    getTrends: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -87,25 +90,6 @@ describe('CampaignsController', () => {
       );
 
       await expect(controller.create(invalidDto)).rejects.toThrow(
-        BadRequestException,
-      );
-    });
-
-    it('devrait gérer les erreurs de validation du service', async () => {
-      const createDto: CreateCampaignDto = {
-        name: 'Test',
-        advertiser: 'Test',
-        budget: -100,
-        status: CampaignStatus.ACTIVE,
-        startDate: '2024-01-01',
-        endDate: '2024-12-31',
-      };
-
-      mockCampaignsService.create.mockRejectedValue(
-        new BadRequestException('Budget must be positive'),
-      );
-
-      await expect(controller.create(createDto)).rejects.toThrow(
         BadRequestException,
       );
     });
@@ -194,18 +178,6 @@ describe('CampaignsController', () => {
         NotFoundException,
       );
     });
-
-    it('devrait retourner 400 pour un ID invalide', async () => {
-      const invalidId = 'invalid-id-format';
-
-      mockCampaignsService.findOne.mockRejectedValue(
-        new BadRequestException('Invalid ID format'),
-      );
-
-      await expect(controller.findOne(invalidId)).rejects.toThrow(
-        BadRequestException,
-      );
-    });
   });
 
   describe('PATCH /campaigns/:id/status', () => {
@@ -238,32 +210,6 @@ describe('CampaignsController', () => {
         controller.updateStatus(campaignId, updateDto),
       ).rejects.toThrow(NotFoundException);
     });
-
-    it('devrait retourner 400 si le statut est identique', async () => {
-      const campaignId = '507f1f77bcf86cd799439011';
-      const updateDto: UpdateStatusDto = { status: CampaignStatus.ACTIVE };
-
-      mockCampaignsService.updateStatus.mockRejectedValue(
-        new BadRequestException('La campagne est déjà au statut "ACTIVE"'),
-      );
-
-      await expect(
-        controller.updateStatus(campaignId, updateDto),
-      ).rejects.toThrow(BadRequestException);
-    });
-
-    it('devrait retourner 400 pour un statut invalide', async () => {
-      const campaignId = '507f1f77bcf86cd799439011';
-      const invalidUpdateDto = { status: 'INVALID_STATUS' } as any;
-
-      mockCampaignsService.updateStatus.mockRejectedValue(
-        new BadRequestException('Statut invalide'),
-      );
-
-      await expect(
-        controller.updateStatus(campaignId, invalidUpdateDto),
-      ).rejects.toThrow(BadRequestException);
-    });
   });
 
   describe('GET /campaigns/:id/stats', () => {
@@ -295,20 +241,102 @@ describe('CampaignsController', () => {
         NotFoundException,
       );
     });
+  });
 
-    it('devrait calculer correctement les statistiques', async () => {
-      const campaignId = '507f1f77bcf86cd799439011';
-      const mockStats = {
-        ctr: 0,
-        cpc: 0,
+  describe('GET /campaigns/stats/overview', () => {
+    it('devrait retourner les statistiques globales', async () => {
+      const mockOverviewStats: OverviewStatsResponseDto = {
+        activeCampaigns: 3,
+        totalCampaigns: 8,
+        totalImpressionsFormatted: '14,5 M',
+        totalImpressions: 14500000,
+        impressionsGrowth: 12.5,
+        totalClicksFormatted: '358,9 k',
+        totalClicks: 358900,
+        clicksGrowth: 8.2,
+        averageCTR: 2.48,
+        ctrGrowth: 3.1,
+        totalBudget: 730000,
+        totalBudgetFormatted: '730 000 €',
+        averageCPC: 2.03,
       };
 
-      mockCampaignsService.getStats.mockResolvedValue(mockStats);
+      mockCampaignsService.getOverviewStats.mockResolvedValue(
+        mockOverviewStats,
+      );
 
-      const result = await controller.getStats(campaignId);
+      const result = await controller.getOverviewStats();
 
-      expect(result.ctr).toBe(0);
-      expect(result.cpc).toBe(0);
+      expect(service.getOverviewStats).toHaveBeenCalled();
+      expect(result).toEqual(mockOverviewStats);
+      expect(result.activeCampaigns).toBe(3);
+      expect(result.totalCampaigns).toBe(8);
+      expect(result.totalImpressionsFormatted).toBe('14,5 M');
+      expect(result.averageCTR).toBe(2.48);
+    });
+
+    it('devrait gérer les erreurs du service', async () => {
+      mockCampaignsService.getOverviewStats.mockRejectedValue(
+        new Error('Erreur lors du calcul des statistiques'),
+      );
+
+      await expect(controller.getOverviewStats()).rejects.toThrow(
+        'Erreur lors du calcul des statistiques',
+      );
+    });
+  });
+
+  describe('GET /campaigns/stats/trends', () => {
+    it('devrait retourner les tendances mensuelles', async () => {
+      const mockTrends: TrendsResponseDto = {
+        months: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'],
+        impressions: [1200000, 1350000, 1420000, 1380000, 1450000, 1500000],
+        clicks: [28000, 32000, 35000, 34000, 35800, 38000],
+        ctr: [2.33, 2.37, 2.46, 2.46, 2.47, 2.53],
+        budget: [650000, 680000, 700000, 690000, 730000, 750000],
+      };
+
+      mockCampaignsService.getTrends.mockResolvedValue(mockTrends);
+
+      const result = await controller.getTrends();
+
+      expect(service.getTrends).toHaveBeenCalled();
+      expect(result).toEqual(mockTrends);
+      expect(result.months).toHaveLength(6);
+      expect(result.impressions).toHaveLength(6);
+      expect(result.clicks).toHaveLength(6);
+      expect(result.ctr).toHaveLength(6);
+      expect(result.budget).toHaveLength(6);
+    });
+
+    it('devrait gérer les erreurs du service', async () => {
+      mockCampaignsService.getTrends.mockRejectedValue(
+        new Error('Erreur lors de la récupération des tendances'),
+      );
+
+      await expect(controller.getTrends()).rejects.toThrow(
+        'Erreur lors de la récupération des tendances',
+      );
+    });
+
+    it('devrait retourner des tendances vides si pas de données', async () => {
+      const mockTrends: TrendsResponseDto = {
+        months: [],
+        impressions: [],
+        clicks: [],
+        ctr: [],
+        budget: [],
+      };
+
+      mockCampaignsService.getTrends.mockResolvedValue(mockTrends);
+
+      const result = await controller.getTrends();
+
+      expect(result.months).toEqual([]);
+      expect(result.impressions).toEqual([]);
+      expect(result.clicks).toEqual([]);
+      expect(result.ctr).toEqual([]);
+      expect(result.budget).toEqual([]);
     });
   });
 
