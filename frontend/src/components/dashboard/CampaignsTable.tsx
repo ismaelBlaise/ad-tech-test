@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
   ChevronRight,
   Eye,
@@ -23,6 +24,7 @@ import { getStatusColor } from "../../hooks/useCampaignStats";
 const ITEMS_PER_PAGE = 5;
 
 export default function CampaignsTable() {
+  const navigate = useNavigate();
   const {
     data: campaignsData,
     isLoading,
@@ -50,6 +52,14 @@ export default function CampaignsTable() {
       });
     }
   }, [isError, error]);
+
+  const handleViewDetails = (campaignId: string) => {
+    navigate(`/detail?id=${campaignId}`);
+  };
+
+  const handleExploreAllCampaigns = () => {
+    navigate("/campaigns");
+  };
 
   const formatDateRange = (startDate: string, endDate: string) => {
     try {
@@ -190,7 +200,10 @@ export default function CampaignsTable() {
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-2 sm:mt-4">
-            <button className="flex items-center justify-center text-[var(--color-primary-600)] hover:text-[var(--color-primary-700)] font-medium group/cta order-2 sm:order-1">
+            <button
+              onClick={handleExploreAllCampaigns}
+              className="flex items-center justify-center text-[var(--color-primary-600)] hover:text-[var(--color-primary-700)] font-medium group/cta order-2 sm:order-1"
+            >
               <span className="px-3 py-1.5 bg-[var(--color-primary-500)]/10 rounded-lg group-hover/cta:bg-[var(--color-primary-500)]/20 transition-colors text-sm sm:text-base">
                 Explorer toutes les campagnes
               </span>
@@ -331,7 +344,10 @@ export default function CampaignsTable() {
                           </td>
                           <td className="py-4 px-[var(--spacing-4)]">
                             <div className="flex items-center gap-2">
-                              <button className="p-1.5 hover:bg-[var(--color-primary-50)] rounded-[var(--radius-md)] transition-colors group/eye">
+                              <button
+                                onClick={() => handleViewDetails(campaign._id)}
+                                className="p-1.5 hover:bg-[var(--color-primary-50)] rounded-[var(--radius-md)] transition-colors group/eye"
+                              >
                                 <Eye className="w-6 h-6 text-[var(--color-gray-500)] group-hover/eye:text-[var(--color-primary-600)]" />
                               </button>
                             </div>
@@ -437,7 +453,10 @@ export default function CampaignsTable() {
                     </div>
 
                     <div className="flex items-center justify-end gap-2">
-                      <button className="p-2 hover:bg-[var(--color-primary-50)] rounded-[var(--radius-md)] transition-colors group/eye">
+                      <button
+                        onClick={() => handleViewDetails(campaign._id)}
+                        className="p-2 hover:bg-[var(--color-primary-50)] rounded-[var(--radius-md)] transition-colors group/eye"
+                      >
                         <Eye className="w-4 h-4 text-[var(--color-gray-500)] group-hover/eye:text-[var(--color-primary-600)]" />
                       </button>
                       <button className="p-2 hover:bg-[var(--color-gray-100)] rounded-[var(--radius-md)] transition-colors">

@@ -18,6 +18,19 @@ export interface CampaignsResponse {
   total: number;
 }
 
+export interface CampaignStats {
+  ctr: number;
+  cpc: number;
+  impressions?: number;
+  clicks?: number;
+  conversions?: number;
+  conversionRate?: number;
+  spent?: number;
+  remainingBudget?: number;
+  avgPosition?: number;
+  lastUpdated?: string;
+}
+
 export type CampaignStatus = "ACTIVE" | "PAUSED" | "FINISHED" | "ALL";
 
 export interface UseCampaignsOptions {
