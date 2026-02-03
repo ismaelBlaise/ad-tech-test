@@ -1,9 +1,43 @@
 import { DollarSign, Target } from "lucide-react";
 
-export default function BudgetCard() {
+interface BudgetCardProps {
+  totalBudget?: number;
+  totalBudgetFormatted?: string;
+  averageCPC?: number;
+}
+
+export default function BudgetCard({
+  totalBudget = 0,
+  totalBudgetFormatted = "0 €",
+  averageCPC = 0,
+}: BudgetCardProps) {
+  const formatBudget = (budget: number) => {
+    return new Intl.NumberFormat("fr-FR", {
+      style: "currency",
+      currency: "EUR",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(budget);
+  };
+
+  const formatCPC = (cpc: number) => {
+    return new Intl.NumberFormat("fr-FR", {
+      style: "currency",
+      currency: "EUR",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(cpc);
+  };
+
+  const formattedBudget =
+    totalBudgetFormatted !== "0 €"
+      ? totalBudgetFormatted
+      : formatBudget(totalBudget);
+
+  const formattedCPC = formatCPC(averageCPC);
+
   return (
     <div className="px-4 sm:px-6 lg:px-[var(--spacing-6)] grid grid-cols-2 gap-[var(--spacing-4)]">
-      {/* Première carte : Budget total */}
       <div className="bg-gradient-to-br from-[var(--color-primary-50)] to-[var(--color-primary-100)] rounded-[var(--radius-lg)] border border-[var(--color-primary-200)] p-[var(--spacing-4)]">
         <div className="flex items-center gap-[var(--spacing-2)] mb-[var(--spacing-3)]">
           <div className="p-2 bg-white rounded-lg">
@@ -14,7 +48,7 @@ export default function BudgetCard() {
           </h2>
         </div>
         <div className="text-2xl font-bold text-[var(--color-gray-900)]">
-          730000 €
+          {formattedBudget}
         </div>
         <div className="text-sm text-[var(--color-gray-600)]">
           Toutes campagnes confondues
@@ -31,7 +65,7 @@ export default function BudgetCard() {
           </h2>
         </div>
         <div className="text-2xl font-bold text-[var(--color-gray-900)]">
-          2.03 €
+          {formattedCPC}
         </div>
         <div className="text-sm text-[var(--color-gray-600)]">CPC moyen</div>
         <div className="text-xs text-[var(--color-gray-500)]">
