@@ -1,5 +1,17 @@
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Layout from "./layouts/_layout";
+import { ActiveTabProvider } from "./contexts/ActiveTabContext";
+
 function App() {
-  return <div className="bg-blue-500 text-white p-4">Hello world</div>;
+  return (
+    <ActiveTabProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Layout />}></Route>
+        </Routes>
+      </BrowserRouter>
+    </ActiveTabProvider>
+  );
 }
 
 export default App;
