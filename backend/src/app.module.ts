@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CampaignsModule } from './campaigns/campaigns.module';
+import { SeedsModule } from './seeds/seeds.module';
 
 @Module({
   imports: [
@@ -10,6 +11,7 @@ import { CampaignsModule } from './campaigns/campaigns.module';
       process.env.MONGO_URI ?? 'mongodb://mongo:27017/adtech_db',
     ),
     CampaignsModule,
+    SeedsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
