@@ -1,18 +1,354 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
 import { CampaignsController } from './campaigns.controller';
+import { CampaignsService } from './campaigns.service';
+import { CreateCampaignDto } from './dtos/create-campaign.dto';
+import { UpdateStatusDto } from './dtos/update-status.dto';
+import { QueryCampaignDto } from './dtos/query-campaign.dto';
+import { Campaign, CampaignStatus } from './schemas/campaign.schema';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { Types } from 'mongoose';
 
 describe('CampaignsController', () => {
   let controller: CampaignsController;
+  let service: CampaignsService;
+
+  const mockCampaignId = new Types.ObjectId('507f1f77bcf86cd799439011');
+
+  const mockCampaign: Campaign = {
+    _id: mockCampaignId,
+    name: 'Test Campaign',
+    advertiser: 'Test Advertiser',
+    budget: 1000,
+    status: 'ACTIVE',
+    startDate: '2024-01-01T00:00:00.000Z',
+    endDate: '2024-12-31T23:59:59.999Z',
+    impressions: 10000,
+    clicks: 100,
+    createdAt: '2024-01-01T10:00:00.000Z',
+    updatedAt: '2024-01-01T10:00:00.000Z',
+  } as any;
+
+  const mockCampaignsService = {
+    create: jest.fn(),
+    findAll: jest.fn(),
+    findOne: jest.fn(),
+    updateStatus: jest.fn(),
+    getStats: jest.fn(),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [CampaignsController],
+      providers: [
+        {
+          provide: CampaignsService,
+          useValue: mockCampaignsService,
+        },
+      ],
     }).compile();
 
     controller = module.get<CampaignsController>(CampaignsController);
+    service = module.get<CampaignsService>(CampaignsService);
+
+    jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('POST /campaigns', () => {
+    it('devrait créer une campagne avec succès', async () => {
+      const createDto: CreateCampaignDto = {
+        name: 'Test Campaign',
+        advertiser: 'Test Advertiser',
+        budget: 1000,
+        status: CampaignStatus.ACTIVE,
+        startDate: '2024-01-01',
+        endDate: '2024-12-31',
+      };
+
+      mockCampaignsService.create.mockResolvedValue(mockCampaign);
+
+      const result = await controller.create(createDto);
+
+      expect(service.create).toHaveBeenCalledWith(createDto);
+      expect(result).toEqual(mockCampaign);
+    });
+
+    it('devrait retourner une erreur 400 si les données sont invalides', async () => {
+      const invalidDto = {} as CreateCampaignDto;
+
+      mockCampaignsService.create.mockRejectedValue(
+        new BadRequestException('Validation failed'),
+      );
+
+      await expect(controller.create(invalidDto)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('devrait gérer les erreurs de validation du service', async () => {
+      const createDto: CreateCampaignDto = {
+        name: 'Test',
+        advertiser: 'Test',
+        budget: -100,
+        status: CampaignStatus.ACTIVE,
+        startDate: '2024-01-01',
+        endDate: '2024-12-31',
+      };
+
+      mockCampaignsService.create.mockRejectedValue(
+        new BadRequestException('Budget must be positive'),
+      );
+
+      await expect(controller.create(createDto)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+  });
+
+  describe('GET /campaigns', () => {
+    it('devrait retourner la liste paginée des campagnes', async () => {
+      const queryDto: QueryCampaignDto = {
+        page: 1,
+        limit: 10,
+      };
+
+      const mockResponse = {
+        data: [mockCampaign],
+        total: 1,
+      };
+
+      mockCampaignsService.findAll.mockResolvedValue(mockResponse);
+
+      const result = await controller.findAll(queryDto);
+
+      expect(service.findAll).toHaveBeenCalledWith(queryDto);
+      expect(result).toEqual(mockResponse);
+      expect(result.data).toHaveLength(1);
+      expect(result.total).toBe(1);
+    });
+
+    it('devrait appliquer les filtres de requête', async () => {
+      const queryDto: QueryCampaignDto = {
+        status: CampaignStatus.ACTIVE,
+        advertiser: 'Test',
+        page: 2,
+        limit: 20,
+      };
+
+      const mockResponse = {
+        data: [mockCampaign, mockCampaign],
+        total: 2,
+      };
+
+      mockCampaignsService.findAll.mockResolvedValue(mockResponse);
+
+      const result = await controller.findAll(queryDto);
+
+      expect(service.findAll).toHaveBeenCalledWith(queryDto);
+      expect(result.data).toHaveLength(2);
+    });
+
+    it('devrait retourner une liste vide si aucune campagne trouvée', async () => {
+      const queryDto: QueryCampaignDto = {};
+
+      const mockResponse = {
+        data: [],
+        total: 0,
+      };
+
+      mockCampaignsService.findAll.mockResolvedValue(mockResponse);
+
+      const result = await controller.findAll(queryDto);
+
+      expect(result.data).toEqual([]);
+      expect(result.total).toBe(0);
+    });
+  });
+
+  describe('GET /campaigns/:id', () => {
+    it('devrait retourner une campagne par ID', async () => {
+      const campaignId = '507f1f77bcf86cd799439011';
+
+      mockCampaignsService.findOne.mockResolvedValue(mockCampaign);
+
+      const result = await controller.findOne(campaignId);
+
+      expect(service.findOne).toHaveBeenCalledWith(campaignId);
+      expect(result).toEqual(mockCampaign);
+    });
+
+    it("devrait retourner 404 si la campagne n'existe pas", async () => {
+      const campaignId = 'non-existent-id';
+
+      mockCampaignsService.findOne.mockRejectedValue(
+        new NotFoundException(`Campagne avec id ${campaignId} introuvable`),
+      );
+
+      await expect(controller.findOne(campaignId)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('devrait retourner 400 pour un ID invalide', async () => {
+      const invalidId = 'invalid-id-format';
+
+      mockCampaignsService.findOne.mockRejectedValue(
+        new BadRequestException('Invalid ID format'),
+      );
+
+      await expect(controller.findOne(invalidId)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+  });
+
+  describe('PATCH /campaigns/:id/status', () => {
+    it("devrait mettre à jour le statut d'une campagne", async () => {
+      const campaignId = '507f1f77bcf86cd799439011';
+      const updateDto: UpdateStatusDto = { status: CampaignStatus.PAUSED };
+
+      const updatedCampaign = {
+        ...mockCampaign,
+        status: CampaignStatus.PAUSED,
+      };
+
+      mockCampaignsService.updateStatus.mockResolvedValue(updatedCampaign);
+
+      const result = await controller.updateStatus(campaignId, updateDto);
+
+      expect(service.updateStatus).toHaveBeenCalledWith(campaignId, updateDto);
+      expect(result.status).toBe('PAUSED');
+    });
+
+    it("devrait retourner 404 si la campagne n'existe pas", async () => {
+      const campaignId = 'non-existent-id';
+      const updateDto: UpdateStatusDto = { status: CampaignStatus.PAUSED };
+
+      mockCampaignsService.updateStatus.mockRejectedValue(
+        new NotFoundException(`Campagne avec id ${campaignId} introuvable`),
+      );
+
+      await expect(
+        controller.updateStatus(campaignId, updateDto),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('devrait retourner 400 si le statut est identique', async () => {
+      const campaignId = '507f1f77bcf86cd799439011';
+      const updateDto: UpdateStatusDto = { status: CampaignStatus.ACTIVE };
+
+      mockCampaignsService.updateStatus.mockRejectedValue(
+        new BadRequestException('La campagne est déjà au statut "ACTIVE"'),
+      );
+
+      await expect(
+        controller.updateStatus(campaignId, updateDto),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('devrait retourner 400 pour un statut invalide', async () => {
+      const campaignId = '507f1f77bcf86cd799439011';
+      const invalidUpdateDto = { status: 'INVALID_STATUS' } as any;
+
+      mockCampaignsService.updateStatus.mockRejectedValue(
+        new BadRequestException('Statut invalide'),
+      );
+
+      await expect(
+        controller.updateStatus(campaignId, invalidUpdateDto),
+      ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('GET /campaigns/:id/stats', () => {
+    it("devrait retourner les statistiques d'une campagne", async () => {
+      const campaignId = '507f1f77bcf86cd799439011';
+      const mockStats = {
+        ctr: 2.5,
+        cpc: 0.45,
+      };
+
+      mockCampaignsService.getStats.mockResolvedValue(mockStats);
+
+      const result = await controller.getStats(campaignId);
+
+      expect(service.getStats).toHaveBeenCalledWith(campaignId);
+      expect(result).toEqual(mockStats);
+      expect(result.ctr).toBe(2.5);
+      expect(result.cpc).toBe(0.45);
+    });
+
+    it("devrait retourner 404 si la campagne n'existe pas", async () => {
+      const campaignId = 'non-existent-id';
+
+      mockCampaignsService.getStats.mockRejectedValue(
+        new NotFoundException(`Campagne avec id ${campaignId} introuvable`),
+      );
+
+      await expect(controller.getStats(campaignId)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('devrait calculer correctement les statistiques', async () => {
+      const campaignId = '507f1f77bcf86cd799439011';
+      const mockStats = {
+        ctr: 0,
+        cpc: 0,
+      };
+
+      mockCampaignsService.getStats.mockResolvedValue(mockStats);
+
+      const result = await controller.getStats(campaignId);
+
+      expect(result.ctr).toBe(0);
+      expect(result.cpc).toBe(0);
+    });
+  });
+
+  describe('Validation des paramètres', () => {
+    it('devrait valider les paramètres de pagination', async () => {
+      const queryDto: QueryCampaignDto = {
+        page: 0,
+        limit: 0,
+      };
+
+      const mockResponse = {
+        data: [],
+        total: 0,
+      };
+
+      mockCampaignsService.findAll.mockResolvedValue(mockResponse);
+
+      const result = await controller.findAll(queryDto);
+
+      expect(service.findAll).toHaveBeenCalledWith(queryDto);
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('devrait gérer les dates dans les filtres', async () => {
+      const queryDto: QueryCampaignDto = {
+        startDateFrom: '2024-01-01',
+        endDateTo: '2024-12-31',
+      };
+
+      const mockResponse = {
+        data: [mockCampaign],
+        total: 1,
+      };
+
+      mockCampaignsService.findAll.mockResolvedValue(mockResponse);
+
+      const result = await controller.findAll(queryDto);
+
+      expect(service.findAll).toHaveBeenCalledWith(queryDto);
+      expect(result.total).toBe(1);
+    });
   });
 });
