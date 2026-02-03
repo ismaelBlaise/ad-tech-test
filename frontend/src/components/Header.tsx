@@ -1,14 +1,16 @@
 import { BarChart3, Megaphone, Plus, Menu, X } from "lucide-react";
 import { useActiveTab } from "../contexts/ActiveTabContext";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Header() {
   const { activeTab, setActiveTab } = useActiveTab();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <>
-      <header className="flex items-center justify-between px-4 md:px-[var(--spacing-6)] py-3 md:py-[var(--spacing-3)] bg-white border-b border-[var(--color-gray-200)] shadow-[var(--shadow-sm)]">
+      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 md:px-[var(--spacing-6)] py-3 md:py-[var(--spacing-3)] bg-white border-b border-[var(--color-gray-200)] shadow-[var(--shadow-sm)]">
         <div className="flex items-center gap-3 md:gap-[var(--spacing-3)]">
           <div className="flex items-center justify-center w-9 h-9 md:w-10 md:h-10 bg-gradient-to-br from-[var(--color-primary-500)] to-[var(--color-primary-700)] rounded-lg md:rounded-xl shadow-sm">
             <Megaphone className="w-4 h-4 md:w-5 md:h-5 text-white" />
@@ -30,7 +32,10 @@ export default function Header() {
 
         <nav className="hidden md:flex items-center gap-[var(--spacing-2)]">
           <button
-            onClick={() => setActiveTab("dashboard")}
+            onClick={() => {
+              setActiveTab("dashboard");
+              navigate("/");
+            }}
             className={`
               flex h-10 items-center gap-[var(--spacing-2)] 
               font-medium font-[var(--font-sans)] 
@@ -54,7 +59,10 @@ export default function Header() {
           </button>
 
           <button
-            onClick={() => setActiveTab("campagnes")}
+            onClick={() => {
+              setActiveTab("campagnes");
+              navigate("/campagnes");
+            }}
             className={`
               flex h-10 items-center gap-[var(--spacing-2)] 
               font-medium font-[var(--font-sans)] 
@@ -122,7 +130,7 @@ export default function Header() {
       </header>
 
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-b border-[var(--color-gray-200)] shadow-md animate-slideDown">
+        <div className="fixed top-16 md:hidden left-0 right-0 z-40 bg-white border-b border-[var(--color-gray-200)] shadow-md animate-slideDown">
           <div className="px-4 py-3">
             <nav className="flex flex-col gap-2">
               <button
@@ -183,7 +191,7 @@ export default function Header() {
                 <button
                   className="
                     flex items-center justify-center gap-2
-                    w-full
+                    w-auto
                     bg-gradient-to-r from-[var(--color-primary-500)] to-[var(--color-primary-600)]
                     hover:from-[var(--color-primary-600)] hover:to-[var(--color-primary-700)]
                     text-white font-medium font-[var(--font-sans)] 

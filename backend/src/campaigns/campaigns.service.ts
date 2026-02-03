@@ -121,7 +121,6 @@ export class CampaignsService {
       0,
     );
 
-    // Conversion en float pour éviter les divisions d'entiers
     const totalClicksFloat = parseFloat(totalClicks.toString());
     const totalImpressionsFloat = parseFloat(totalImpressions.toString());
 
