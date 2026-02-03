@@ -22,6 +22,8 @@ import { CampaignsService } from './campaigns.service';
 import { CreateCampaignDto } from './dtos/create-campaign.dto';
 import { UpdateStatusDto } from './dtos/update-status.dto';
 import { QueryCampaignDto } from './dtos/query-campaign.dto';
+import { OverviewStatsResponseDto } from './dtos/overview-stats-response.dto';
+import { TrendsResponseDto } from './dtos/trends-response.dto';
 import { Campaign } from './schemas/campaign.schema';
 
 @ApiTags('Campagnes')
@@ -176,5 +178,31 @@ export class CampaignsController {
     @Param('id') id: string,
   ): Promise<{ ctr: number; cpc: number }> {
     return this.campaignsService.getStats(id);
+  }
+
+  @Get('stats/overview')
+  @ApiOperation({
+    summary: 'Obtenir les statistiques globales',
+    description: 'Récupère les KPI globaux pour toutes les campagnes',
+  })
+  @ApiOkResponse({
+    description: 'Statistiques globales récupérées avec succès',
+    type: OverviewStatsResponseDto,
+  })
+  async getOverviewStats(): Promise<OverviewStatsResponseDto> {
+    return this.campaignsService.getOverviewStats();
+  }
+
+  @Get('stats/trends')
+  @ApiOperation({
+    summary: 'Obtenir les tendances mensuelles',
+    description: "Récupère l'évolution des KPI sur les 6 derniers mois",
+  })
+  @ApiOkResponse({
+    description: 'Tendances récupérées avec succès',
+    type: TrendsResponseDto,
+  })
+  async getTrends(): Promise<TrendsResponseDto> {
+    return this.campaignsService.getTrends();
   }
 }

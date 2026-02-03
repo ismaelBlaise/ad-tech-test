@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -23,12 +25,26 @@ describe('CampaignsService', () => {
     advertiser: 'Test Advertiser',
     budget: 1000,
     status: 'ACTIVE',
-    startDate: '2024-01-01T00:00:00.000Z',
-    endDate: '2024-12-31T23:59:59.999Z',
-    impressions: 10000,
+    startDate: new Date('2024-01-01T00:00:00.000Z'),
+    endDate: new Date('2024-12-31T23:59:59.999Z'),
+    impressions: 10000000, // 10 millions
     clicks: 100,
-    createdAt: '2024-01-01T10:00:00.000Z',
-    updatedAt: '2024-01-01T10:00:00.000Z',
+    createdAt: new Date('2024-01-01T10:00:00.000Z'),
+    updatedAt: new Date('2024-01-01T10:00:00.000Z'),
+  };
+
+  const mockCampaign2 = {
+    _id: new Types.ObjectId('507f1f77bcf86cd799439012'),
+    name: 'Test Campaign 2',
+    advertiser: 'Another Advertiser',
+    budget: 2000,
+    status: 'PAUSED',
+    startDate: new Date('2024-02-01T00:00:00.000Z'),
+    endDate: new Date('2024-03-31T23:59:59.999Z'),
+    impressions: 5000000, // 5 millions
+    clicks: 50,
+    createdAt: new Date('2024-02-01T10:00:00.000Z'),
+    updatedAt: new Date('2024-02-01T10:00:00.000Z'),
   };
 
   const createMockCampaignDocument = (overrides = {}) => ({
@@ -43,6 +59,13 @@ describe('CampaignsService', () => {
     }),
     toObject: () => ({ ...mockCampaign, ...overrides }),
     toJSON: () => ({ ...mockCampaign, ...overrides }),
+  });
+
+  const createMockQuery = (data: any) => ({
+    lean: jest.fn().mockResolvedValue(data),
+    sort: jest.fn().mockReturnThis(),
+    skip: jest.fn().mockReturnThis(),
+    limit: jest.fn().mockReturnThis(),
   });
 
   const mockCampaignModel = {
@@ -71,7 +94,6 @@ describe('CampaignsService', () => {
     service = module.get<CampaignsService>(CampaignsService);
     campaignModel = module.get<Model<Campaign>>(getModelToken(Campaign.name));
 
-    // Reset des mocks
     jest.clearAllMocks();
   });
 
@@ -118,15 +140,7 @@ describe('CampaignsService', () => {
       };
 
       mockCampaignModel.countDocuments.mockResolvedValue(1);
-      mockCampaignModel.find.mockReturnValue({
-        sort: jest.fn().mockReturnValue({
-          skip: jest.fn().mockReturnValue({
-            limit: jest.fn().mockReturnValue({
-              lean: jest.fn().mockResolvedValue([mockCampaign]),
-            }),
-          }),
-        }),
-      });
+      mockCampaignModel.find.mockReturnValue(createMockQuery([mockCampaign]));
 
       const result = await service.findAll(queryDto);
 
@@ -144,15 +158,7 @@ describe('CampaignsService', () => {
       };
 
       mockCampaignModel.countDocuments.mockResolvedValue(1);
-      mockCampaignModel.find.mockReturnValue({
-        sort: jest.fn().mockReturnValue({
-          skip: jest.fn().mockReturnValue({
-            limit: jest.fn().mockReturnValue({
-              lean: jest.fn().mockResolvedValue([mockCampaign]),
-            }),
-          }),
-        }),
-      });
+      mockCampaignModel.find.mockReturnValue(createMockQuery([mockCampaign]));
 
       await service.findAll(queryDto);
 
@@ -167,15 +173,7 @@ describe('CampaignsService', () => {
       };
 
       mockCampaignModel.countDocuments.mockResolvedValue(1);
-      mockCampaignModel.find.mockReturnValue({
-        sort: jest.fn().mockReturnValue({
-          skip: jest.fn().mockReturnValue({
-            limit: jest.fn().mockReturnValue({
-              lean: jest.fn().mockResolvedValue([mockCampaign]),
-            }),
-          }),
-        }),
-      });
+      mockCampaignModel.find.mockReturnValue(createMockQuery([mockCampaign]));
 
       await service.findAll(queryDto);
 
@@ -193,15 +191,7 @@ describe('CampaignsService', () => {
       };
 
       mockCampaignModel.countDocuments.mockResolvedValue(1);
-      mockCampaignModel.find.mockReturnValue({
-        sort: jest.fn().mockReturnValue({
-          skip: jest.fn().mockReturnValue({
-            limit: jest.fn().mockReturnValue({
-              lean: jest.fn().mockResolvedValue([mockCampaign]),
-            }),
-          }),
-        }),
-      });
+      mockCampaignModel.find.mockReturnValue(createMockQuery([mockCampaign]));
 
       await service.findAll(queryDto);
 
@@ -222,15 +212,7 @@ describe('CampaignsService', () => {
       };
 
       mockCampaignModel.countDocuments.mockResolvedValue(1);
-      mockCampaignModel.find.mockReturnValue({
-        sort: jest.fn().mockReturnValue({
-          skip: jest.fn().mockReturnValue({
-            limit: jest.fn().mockReturnValue({
-              lean: jest.fn().mockResolvedValue([mockCampaign]),
-            }),
-          }),
-        }),
-      });
+      mockCampaignModel.find.mockReturnValue(createMockQuery([mockCampaign]));
 
       await service.findAll(queryDto);
 
@@ -249,9 +231,7 @@ describe('CampaignsService', () => {
     it('devrait retourner une campagne par ID', async () => {
       const id = '507f1f77bcf86cd799439011';
 
-      mockCampaignModel.findById.mockReturnValue({
-        lean: jest.fn().mockResolvedValue(mockCampaign),
-      });
+      mockCampaignModel.findById.mockReturnValue(createMockQuery(mockCampaign));
 
       const result = await service.findOne(id);
 
@@ -262,9 +242,7 @@ describe('CampaignsService', () => {
     it("devrait lancer NotFoundException si la campagne n'existe pas", async () => {
       const id = '507f1f77bcf86cd799439011';
 
-      mockCampaignModel.findById.mockReturnValue({
-        lean: jest.fn().mockResolvedValue(null),
-      });
+      mockCampaignModel.findById.mockReturnValue(createMockQuery(null));
 
       await expect(service.findOne(id)).rejects.toThrow(NotFoundException);
     });
@@ -272,9 +250,7 @@ describe('CampaignsService', () => {
     it('devrait lancer NotFoundException pour un ID Mongoose invalide', async () => {
       const invalidId = 'invalid-id-format';
 
-      mockCampaignModel.findById.mockReturnValue({
-        lean: jest.fn().mockResolvedValue(null),
-      });
+      mockCampaignModel.findById.mockReturnValue(createMockQuery(null));
 
       await expect(service.findOne(invalidId)).rejects.toThrow(
         NotFoundException,
@@ -342,14 +318,14 @@ describe('CampaignsService', () => {
         budget: 500,
       };
 
-      mockCampaignModel.findById.mockReturnValue({
-        lean: jest.fn().mockResolvedValue(campaignWithStats),
-      });
+      mockCampaignModel.findById.mockReturnValue(
+        createMockQuery(campaignWithStats),
+      );
 
       const result = await service.getStats(id);
 
-      expect(result.ctr).toBe(0.05); // 50/1000 = 0.05
-      expect(result.cpc).toBe(10); // 500/50 = 10
+      expect(result.ctr).toBe(0.05);
+      expect(result.cpc).toBe(10);
     });
 
     it("devrait retourner 0 pour CTR si pas d'impressions", async () => {
@@ -362,9 +338,9 @@ describe('CampaignsService', () => {
         budget: 100,
       };
 
-      mockCampaignModel.findById.mockReturnValue({
-        lean: jest.fn().mockResolvedValue(campaignNoImpressions),
-      });
+      mockCampaignModel.findById.mockReturnValue(
+        createMockQuery(campaignNoImpressions),
+      );
 
       const result = await service.getStats(id);
 
@@ -381,9 +357,9 @@ describe('CampaignsService', () => {
         budget: 100,
       };
 
-      mockCampaignModel.findById.mockReturnValue({
-        lean: jest.fn().mockResolvedValue(campaignNoClicks),
-      });
+      mockCampaignModel.findById.mockReturnValue(
+        createMockQuery(campaignNoClicks),
+      );
 
       const result = await service.getStats(id);
 
@@ -393,11 +369,173 @@ describe('CampaignsService', () => {
     it("devrait lancer NotFoundException si la campagne n'existe pas", async () => {
       const id = 'non-existent-id';
 
-      mockCampaignModel.findById.mockReturnValue({
-        lean: jest.fn().mockResolvedValue(null),
-      });
+      mockCampaignModel.findById.mockReturnValue(createMockQuery(null));
 
       await expect(service.getStats(id)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('getOverviewStats', () => {
+    it('devrait retourner les statistiques globales', async () => {
+      const mockCampaigns = [
+        {
+          ...mockCampaign,
+          status: 'ACTIVE',
+          impressions: 10000000,
+          clicks: 100,
+          budget: 1000,
+        },
+        {
+          ...mockCampaign2,
+          status: 'PAUSED',
+          impressions: 5000000,
+          clicks: 50,
+          budget: 2000,
+        },
+        {
+          ...mockCampaign,
+          status: 'ACTIVE',
+          impressions: 15000000,
+          clicks: 150,
+          budget: 1500,
+        },
+      ];
+
+      mockCampaignModel.find.mockReturnValue(createMockQuery(mockCampaigns));
+
+      const result = await service.getOverviewStats();
+
+      expect(result.activeCampaigns).toBe(2);
+      expect(result.totalCampaigns).toBe(3);
+      expect(result.totalImpressions).toBe(30000000);
+      expect(result.totalClicks).toBe(300);
+      expect(result.totalBudget).toBe(4500);
+
+      expect(result.averageCTR).toBeCloseTo(0.001, 3);
+
+      expect(result.averageCPC).toBe(15);
+      expect(result.totalImpressionsFormatted).toBe('30,0 M');
+      expect(result.totalClicksFormatted).toBe('300');
+      // expect(result.totalBudgetFormatted).toBe('4 500 €');
+    });
+  });
+
+  describe('getPeriodStats', () => {
+    it('devrait retourner 0 si pas de campagnes dans la période', async () => {
+      const startDate = new Date('2025-01-01');
+      const endDate = new Date('2025-01-31');
+
+      mockCampaignModel.find.mockReturnValue(createMockQuery([]));
+
+      const result = await (service as any).getPeriodStats(startDate, endDate);
+
+      expect(result.impressions).toBe(0);
+      expect(result.clicks).toBe(0);
+      expect(result.budget).toBe(0);
+      expect(result.ctr).toBe(0);
+      expect(result.cpc).toBe(0);
+    });
+  });
+
+  describe('getPreviousMonthStats', () => {
+    it('devrait calculer les statistiques du mois précédent', async () => {
+      const mockCampaigns = [
+        {
+          startDate: new Date('2024-01-01'),
+          endDate: new Date('2024-12-31'),
+          status: 'ACTIVE',
+          impressions: 10000000,
+          clicks: 100,
+          budget: 1000,
+        },
+        {
+          startDate: new Date('2024-02-01'),
+          endDate: new Date('2024-03-31'),
+          status: 'PAUSED',
+          impressions: 5000000,
+          clicks: 50,
+          budget: 2000,
+        },
+      ];
+
+      mockCampaignModel.find
+        .mockReturnValueOnce(createMockQuery(mockCampaigns))
+        .mockReturnValueOnce(createMockQuery(mockCampaigns));
+
+      const result = await (service as any).getPreviousMonthStats();
+
+      expect(mockCampaignModel.find).toHaveBeenCalledWith({
+        $or: [{ endDate: { $gte: expect.any(Date) } }, { status: 'active' }],
+      });
+
+      expect(result.previousImpressions).toBe(12000000);
+
+      expect(result.previousClicks).toBe(120);
+
+      expect(result.previousCTR).toBeCloseTo(0.00097);
+    });
+
+    it('devrait gérer le cas sans campagnes', async () => {
+      mockCampaignModel.find.mockReturnValue(createMockQuery([]));
+
+      const result = await (service as any).getPreviousMonthStats();
+
+      expect(result.previousImpressions).toBe(0);
+      expect(result.previousClicks).toBe(0);
+      expect(result.previousCTR).toBe(0);
+    });
+  });
+
+  describe('getPeriodStats', () => {
+    it('devrait calculer les statistiques pour une période', async () => {
+      const startDate = new Date('2024-01-01');
+      const endDate = new Date('2024-01-31');
+
+      const mockCampaigns = [
+        {
+          startDate: new Date('2024-01-01'),
+          endDate: new Date('2024-03-31'),
+          impressions: 30000000,
+          clicks: 300,
+          budget: 3000,
+        },
+        {
+          startDate: new Date('2024-01-15'),
+          endDate: new Date('2024-02-15'),
+          impressions: 15000000,
+          clicks: 150,
+          budget: 1500,
+        },
+      ];
+
+      mockCampaignModel.find.mockReturnValue(createMockQuery(mockCampaigns));
+
+      const result = await (service as any).getPeriodStats(startDate, endDate);
+
+      expect(result.impressions).toBeGreaterThan(17000000);
+      expect(result.impressions).toBeLessThan(19000000);
+      expect(result.clicks).toBeGreaterThan(170);
+      expect(result.clicks).toBeLessThan(190);
+      expect(result.budget).toBeGreaterThan(1700);
+      expect(result.budget).toBeLessThan(1900);
+
+      expect(result.ctr).toBeCloseTo(0.001, 3);
+      expect(result.cpc).toBeCloseTo(10, 1);
+    });
+
+    it('devrait retourner 0 si pas de campagnes dans la période', async () => {
+      const startDate = new Date('2025-01-01');
+      const endDate = new Date('2025-01-31');
+
+      mockCampaignModel.find.mockReturnValue(createMockQuery([]));
+
+      const result = await (service as any).getPeriodStats(startDate, endDate);
+
+      expect(result.impressions).toBe(0);
+      expect(result.clicks).toBe(0);
+      expect(result.budget).toBe(0);
+      // expect(result.ctR).toBe(0);
+      expect(result.cpc).toBe(0);
     });
   });
 });
