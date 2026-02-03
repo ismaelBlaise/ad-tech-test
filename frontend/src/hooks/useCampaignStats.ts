@@ -58,3 +58,16 @@ export const getStatusColor = (status: "ACTIVE" | "PAUSED" | "FINISHED") => {
       return "bg-gradient-to-r from-[var(--color-gray-200)] to-[var(--color-gray-300)] text-[var(--color-gray-700)] border border-[var(--color-gray-300)]";
   }
 };
+
+export const translateStatus = (status: "ACTIVE" | "PAUSED" | "FINISHED") => {
+  switch (status) {
+    case "ACTIVE":
+      return "Active";
+    case "PAUSED":
+      return "En pause";
+    case "FINISHED":
+      return "Terminée";
+    default:
+      return status;
+  }
+};

@@ -61,7 +61,7 @@ export default function Header() {
           <button
             onClick={() => {
               setActiveTab("campagnes");
-              navigate("/campagnes");
+              navigate("/campaigns");
             }}
             className={`
               flex h-10 items-center gap-[var(--spacing-2)] 

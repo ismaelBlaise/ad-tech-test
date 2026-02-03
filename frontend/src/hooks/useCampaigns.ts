@@ -6,23 +6,10 @@ import axios, { AxiosError } from "axios";
 import { API_BASE_URL } from "../lib/api";
 import type { ApiError } from "../types/apiError";
 import { useEffect, useState } from "react";
-import type { CampaignsResponse } from "../types/campaigns";
-
-export type CampaignStatus = "ACTIVE" | "PAUSED" | "FINISHED" | "ALL";
-
-export interface UseCampaignsOptions {
-  page?: number;
-  limit?: number;
-  advertiser?: string;
-  budgetMin?: number;
-  budgetMax?: number;
-  startDateFrom?: string;
-  startDateTo?: string;
-  endDateFrom?: string;
-  endDateTo?: string;
-  status?: CampaignStatus;
-  enabled?: boolean;
-}
+import type {
+  CampaignsResponse,
+  UseCampaignsOptions,
+} from "../types/campaigns";
 
 const fetchCampaigns = async (
   options: UseCampaignsOptions = {},
