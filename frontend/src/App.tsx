@@ -5,13 +5,14 @@ import DashboardPage from "./pages/DashboardPage";
 import { ToastContainer } from "react-toastify";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/react-query";
+import CampaignsPage from "./pages/CampaignPage";
 
 function App() {
   return (
     <ActiveTabProvider>
       <QueryClientProvider client={queryClient}>
         <ToastContainer
-          position="bottom-right"
+          position="bottom-left"
           autoClose={5000}
           hideProgressBar={false}
           newestOnTop={false}
@@ -26,6 +27,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Layout />}>
               <Route index element={<DashboardPage />} />
+              <Route path="campaigns" element={<CampaignsPage />} />
             </Route>
           </Routes>
         </BrowserRouter>
