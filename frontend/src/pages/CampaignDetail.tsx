@@ -384,18 +384,6 @@ export default function CampaignDetail({ onBack }: CampaignDetailProps) {
                 <span>{isUpdating ? "Mise à jour..." : "Arrêter"}</span>
               </button>
             </div>
-
-            <div className="flex items-center gap-2 sm:ml-4 sm:border-l sm:border-[var(--color-gray-200)] sm:pl-4">
-              <button className="p-2 hover:bg-[var(--color-gray-100)] rounded-[var(--radius-md)] transition-colors">
-                <Share2 className="w-5 h-5 text-[var(--color-gray-600)]" />
-              </button>
-              <button className="p-2 hover:bg-[var(--color-gray-100)] rounded-[var(--radius-md)] transition-colors">
-                <Download className="w-5 h-5 text-[var(--color-gray-600)]" />
-              </button>
-              <button className="p-2 hover:bg-[var(--color-gray-100)] rounded-[var(--radius-md)] transition-colors">
-                <MoreVertical className="w-5 h-5 text-[var(--color-gray-600)]" />
-              </button>
-            </div>
           </div>
         </div>
 
