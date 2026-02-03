@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   ChevronRight,
   Eye,
@@ -27,6 +28,7 @@ import type { CampaignStatus } from "../types/campaigns";
 const ITEMS_PER_PAGE = 10;
 
 export default function CampaignsPage() {
+  const navigate = useNavigate();
   const [filters, setFilters] = useState({
     status: "ALL" as CampaignStatus,
     advertiser: "",
@@ -75,6 +77,10 @@ export default function CampaignsPage() {
       });
     }
   }, [isError, error]);
+
+  const handleViewDetails = (campaignId: string) => {
+    navigate(`/detail?id=${campaignId}`);
+  };
 
   const handleFilterChange = (key: keyof typeof filters, value: string) => {
     setFilters((prev) => ({
@@ -680,7 +686,10 @@ export default function CampaignsPage() {
                           </td>
                           <td className="py-4 px-[var(--spacing-4)]">
                             <div className="flex items-center gap-2">
-                              <button className="p-1.5 hover:bg-[var(--color-primary-50)] rounded-[var(--radius-md)] transition-colors group/eye">
+                              <button
+                                onClick={() => handleViewDetails(campaign._id)}
+                                className="p-1.5 hover:bg-[var(--color-primary-50)] rounded-[var(--radius-md)] transition-colors group/eye"
+                              >
                                 <Eye className="w-6 h-6 text-[var(--color-gray-500)] group-hover/eye:text-[var(--color-primary-600)]" />
                               </button>
                             </div>
@@ -786,7 +795,10 @@ export default function CampaignsPage() {
                     </div>
 
                     <div className="flex items-center justify-end gap-2">
-                      <button className="p-2 hover:bg-[var(--color-primary-50)] rounded-[var(--radius-md)] transition-colors group/eye">
+                      <button
+                        onClick={() => handleViewDetails(campaign._id)}
+                        className="p-2 hover:bg-[var(--color-primary-50)] rounded-[var(--radius-md)] transition-colors group/eye"
+                      >
                         <Eye className="w-4 h-4 text-[var(--color-gray-500)] group-hover/eye:text-[var(--color-primary-600)]" />
                       </button>
                       <button className="p-2 hover:bg-[var(--color-gray-100)] rounded-[var(--radius-md)] transition-colors">

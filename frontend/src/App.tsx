@@ -6,6 +6,7 @@ import { ToastContainer } from "react-toastify";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/react-query";
 import CampaignsPage from "./pages/CampaignPage";
+import CampaignDetail from "./pages/CampaignDetail";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
             <Route path="/" element={<Layout />}>
               <Route index element={<DashboardPage />} />
               <Route path="campaigns" element={<CampaignsPage />} />
+              <Route path="detail" element={<CampaignDetail />}></Route>
             </Route>
           </Routes>
         </BrowserRouter>
