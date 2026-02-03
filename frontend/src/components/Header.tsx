@@ -8,6 +8,11 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
+  const handleCreateCampaign = () => {
+    navigate("/create");
+    setMobileMenuOpen(false);
+  };
+
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 md:px-[var(--spacing-6)] py-3 md:py-[var(--spacing-3)] bg-white border-b border-[var(--color-gray-200)] shadow-[var(--shadow-sm)]">
@@ -88,6 +93,7 @@ export default function Header() {
           <div className="h-6 w-px bg-[var(--color-gray-200)] mx-[var(--spacing-2)]"></div>
 
           <button
+            onClick={handleCreateCampaign}
             className="
               flex h-10 items-center gap-[var(--spacing-2)] 
               bg-gradient-to-r from-[var(--color-primary-500)] to-[var(--color-primary-600)]
@@ -113,7 +119,10 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-2 md:hidden">
-          <button className="flex h-9 items-center gap-2 bg-gradient-to-r from-[var(--color-primary-500)] to-[var(--color-primary-600)] text-white font-medium font-[var(--font-sans)] px-3 py-1.5 rounded-[var(--radius-md)] transition-all duration-200 ease-out shadow-sm active:scale-[0.98]">
+          <button
+            onClick={handleCreateCampaign}
+            className="flex h-9 items-center gap-2 bg-gradient-to-r from-[var(--color-primary-500)] to-[var(--color-primary-600)] text-white font-medium font-[var(--font-sans)] px-3 py-1.5 rounded-[var(--radius-md)] transition-all duration-200 ease-out shadow-sm active:scale-[0.98]"
+          >
             <Plus className="w-4 h-4" />
           </button>
           <button
@@ -137,6 +146,7 @@ export default function Header() {
                 onClick={() => {
                   setActiveTab("dashboard");
                   setMobileMenuOpen(false);
+                  navigate("/");
                 }}
                 className={`
                   flex items-center gap-3
@@ -164,6 +174,7 @@ export default function Header() {
                 onClick={() => {
                   setActiveTab("campagnes");
                   setMobileMenuOpen(false);
+                  navigate("/campaigns");
                 }}
                 className={`
                   flex items-center gap-3
@@ -189,9 +200,10 @@ export default function Header() {
 
               <div className="pt-2 mt-2 border-t border-[var(--color-gray-200)]">
                 <button
+                  onClick={handleCreateCampaign}
                   className="
                     flex items-center justify-center gap-2
-                    w-auto
+                    w-full
                     bg-gradient-to-r from-[var(--color-primary-500)] to-[var(--color-primary-600)]
                     hover:from-[var(--color-primary-600)] hover:to-[var(--color-primary-700)]
                     text-white font-medium font-[var(--font-sans)] 

@@ -149,24 +149,6 @@ export default function CampaignsPage() {
     }).format(budget);
   };
 
-  const getCampaignStats = () => {
-    if (!campaignsData?.data) return { active: 0, paused: 0, finished: 0 };
-
-    const active = campaignsData.data.filter(
-      (c: { status: string }) => c.status === "ACTIVE",
-    ).length;
-    const paused = campaignsData.data.filter(
-      (c: { status: string }) => c.status === "PAUSED",
-    ).length;
-    const finished = campaignsData.data.filter(
-      (c: { status: string }) => c.status === "FINISHED",
-    ).length;
-
-    return { active, paused, finished };
-  };
-
-  const stats = getCampaignStats();
-
   if (isLoading) {
     return (
       <div className="overflow-hidden">
@@ -424,7 +406,10 @@ export default function CampaignsPage() {
               </div>
             </div>
 
-            <button className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[var(--color-primary-500)] to-[var(--color-primary-600)] text-white font-medium rounded-[var(--radius-md)] hover:shadow-[var(--shadow-md)] transition-all shadow-sm group order-2 sm:order-3 sm:ml-auto">
+            <button
+              onClick={() => navigate("/create")}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[var(--color-primary-500)] to-[var(--color-primary-600)] text-white font-medium rounded-[var(--radius-md)] hover:shadow-[var(--shadow-md)] transition-all shadow-sm group order-2 sm:order-3 sm:ml-auto"
+            >
               <Plus className="w-4 h-4" />
               <span className="text-sm sm:text-base">Nouvelle campagne</span>
             </button>
@@ -831,7 +816,7 @@ export default function CampaignsPage() {
                 : "Créez votre première campagne pour commencer"}
             </p>
             <button
-              onClick={handleResetFilters}
+              onClick={() => navigate("/create")}
               className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[var(--color-primary-500)] to-[var(--color-primary-600)] text-white font-medium rounded-[var(--radius-md)] hover:shadow-[var(--shadow-md)] transition-all shadow-sm mx-auto"
             >
               <Plus className="w-4 h-4" />
