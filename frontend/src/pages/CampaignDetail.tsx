@@ -1,11 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   ChevronLeft,
-  MoreVertical,
-  Download,
-  Share2,
   Calendar,
   Target,
   Eye,
@@ -161,9 +158,9 @@ export default function CampaignDetail({ onBack }: CampaignDetailProps) {
     }
   };
 
-  const handleRetry = () => {
-    refetch();
-  };
+  // const handleRetry = () => {
+  //   refetch();
+  // };
 
   if (isLoading) {
     return (
